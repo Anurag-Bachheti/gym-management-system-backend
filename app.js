@@ -14,6 +14,8 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use(errorHandler);
 
+// const cors = require('cors');
+// app.use(cors());
 
 
 module.exports = app;
