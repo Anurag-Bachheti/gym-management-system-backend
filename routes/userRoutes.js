@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User'); // Assuming you're using the User model for both "members" and "users"
+const userController = require('../controllers/userController');
 
 const {
   createUser,
@@ -105,8 +106,9 @@ router.delete('/users/:id', async (req, res) => {
   }
 });
 
+
 // Generic route handling (could be used for other user actions, but doesn't seem to be necessary right now)
-router.route('/').get(getUsers).post(createUser);
-router.route('/:id').get(getUserById).put(updateUser).delete(deleteUser);
+router.route('/').get(getUsers).post(createUser).delete(userController.deleteAllUsers);
+router.route('/:id').get(getUserById).put(updateUser).delete();
 
 module.exports = router;
