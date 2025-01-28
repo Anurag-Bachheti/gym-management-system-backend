@@ -1,9 +1,9 @@
-const Bill = require('../models/Bills');
+const Bill = require('../models/Bill');
 
 // Create a new bill
 exports.createBill = async (req, res) => {
   try {
-    const { userId, membershipType, amount, dueDate } = req.body;
+    const { userId, Type, amount, dueDate } = req.body;
 
     const newBill = await Bill.create({
       userId,
@@ -18,22 +18,22 @@ exports.createBill = async (req, res) => {
   }
 };
 
-// Get all bills
-exports.getAllBills = async (req, res) => {
+// Get all bill
+exports.getAllBill = async (req, res) => {
   try {
-    const bills = await Bill.find().populate('userId', 'name email'); // Populate user info
-    res.status(200).json(bills);
+    const bill = await Bill.find().populate('userId', 'name email'); // Populate user info
+    res.status(200).json(bill);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Get bills for a specific user
-exports.getBillsByUser = async (req, res) => {
+// Get bill for a specific user
+exports.getBillByUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const bills = await Bill.find({ userId }).populate('userId', 'name email');
-    res.status(200).json(bills);
+    const bill = await Bill.find({ userId }).populate('userId', 'name email');
+    res.status(200).json(bill);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -100,7 +100,6 @@ router.put('/users/:id', async (req, res) => {
   }
 });
 
-
 // PUT route to update a user
 router.put('/users/:id', async (req, res) => {
   const { id } = req.params;
