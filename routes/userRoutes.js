@@ -83,7 +83,6 @@ router.put('/users/:id', async (req, res) => {
   const updates = req.body;  // Extract the fields to be updated from the request body
 
   try {
-    // Check if the user exists in the database
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
