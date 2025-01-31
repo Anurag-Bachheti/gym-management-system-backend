@@ -38,7 +38,7 @@ router.post('/login', async (req, res) => {
 // POST route to add a new member
 router.post('/users', async (req, res) => {
   try {
-    const { name, email, phone, membershipStatus = 'active', membershipType = 'Monthly' } = req.body;
+    const { name, email, phone, password, membershipStatus = 'active', membershipType = 'Monthly' } = req.body;
 
     // Validate input data
     if (!name || !email || !phone) {
@@ -55,6 +55,7 @@ router.post('/users', async (req, res) => {
       name,
       email,
       phone,
+      password,
       membershipStatus,
       membershipType,
     });

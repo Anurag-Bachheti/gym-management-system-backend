@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
+  password: { type: String, required: true },
   membershipStatus: { type: String, enum: ['active', 'inactive'], required: true, default: "active" },
   membershipType: { type: String, enum: ['Monthly', 'Quarterly', 'Half-Yearly', 'Yearly'], required: true, default: "Monthly" },
   amountpaid: { type: String, enum: ['yes', 'no'], required: true, default: "no" },
