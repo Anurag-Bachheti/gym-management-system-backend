@@ -19,16 +19,33 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    if (!user.password) {
+      return res.status(401).json({ message: 'Password not set. Contact admin.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id }, 'yourSecretKey', { expiresIn: '1h' });
-    res.json({ token });
+    if (user.membershipStatus !== 'active') {
+      return res.status(403).json({ message: 'Unauthorized: Membership inactive' });
+    }
+
+    const token = jwt.sign({ userId: user._id, role: 'member' }, 'yourSecretKey', { expiresIn: '1h' });
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: "member",
+      }
+    });
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ message: 'Server error' });
@@ -41,8 +58,8 @@ router.post('/users', async (req, res) => {
     const { name, email, phone, password, membershipStatus = 'active', membershipType = 'Monthly' } = req.body;
 
     // Validate input data
-    if (!name || !email || !phone) {
-      return res.status(400).json({ message: 'Name, email, and phone are required.' });
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({ message: 'Name, email, phone and password are required.' });
     }
 
     // Check if the user already exists
@@ -51,17 +68,20 @@ router.post('/users', async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
-    const newMember = new User({
-      name,
-      email,
-      phone,
-      password,
-      membershipStatus,
-      membershipType,
-    });
+  const hashedPassword = await bcrypt.hash(password, 10); // Hash password before saving
+
+  const newMember = new User({
+    name,
+    email,
+    phone,
+    password: hashedPassword,
+    membershipStatus,
+    membershipType,
+    amountPaid : 'no',
+  });
 
     await newMember.save();
-    res.status(201).json(newMember);
+    res.status(201).json( {message: 'Member added successfully', user: newMember} );
   } catch (err) {
     console.error("Error adding member:", err);
     res.status(500).json({ message: 'Error adding member', error: err.message || err });
@@ -77,6 +97,39 @@ router.get('/users', async (req, res) => {
     res.status(500).json({ message: 'Error fetching users' });
   }
 });
+
+
+
+router.post("/add-member", async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    // Check if the member already exists
+    let existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // Hash the password before storing it
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newMember = new User({
+      name,
+      email,
+      password: hashedPassword,
+      membershipStatus: "active", // Ensure it's active by default
+      role: "member",
+    });
+
+    await newMember.save();
+    res.status(201).json({ message: "Member added successfully" });
+  } catch (error) {
+    console.error("Error adding member:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 
 // GET route to fetch user by ID
 router.put('/users/:id', async (req, res) => {

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Member = require('../models/Member');
+// const bcrypt = require("bcrypt");
 
 // Fetch all members
 router.get('/', async (req, res) => {
@@ -22,5 +23,26 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Error fetching member details' });
   }
 });
+
+
+// router.post("/api/add-member", async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     // Hash password before storing
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     const newMember = new User({
+//       email,
+//       password: hashedPassword,
+//       role: "member",
+//     });
+
+//     await newMember.save();
+//     res.status(201).json({ message: "Member added successfully" });
+//   } catch (error) {
+//     res.status(500).json({ message: "Error adding member" });
+//   }
+// });
 
 module.exports = router;
