@@ -3,6 +3,8 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const Bill = require('../models/Bill');
+
 const {
   createUser,
   getUsers,
@@ -68,20 +70,20 @@ router.post('/users', async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
-  const hashedPassword = await bcrypt.hash(password, 10); // Hash password before saving
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash password before saving
 
-  const newMember = new User({
-    name,
-    email,
-    phone,
-    password: hashedPassword,
-    membershipStatus,
-    membershipType,
-    amountPaid : 'no',
-  });
+    const newMember = new User({
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      membershipStatus,
+      membershipType,
+      amountPaid: 'no',
+    });
 
     await newMember.save();
-    res.status(201).json( {message: 'Member added successfully', user: newMember} );
+    res.status(201).json({ message: 'Member added successfully', user: newMember });
   } catch (err) {
     console.error("Error adding member:", err);
     res.status(500).json({ message: 'Error adding member', error: err.message || err });
@@ -177,6 +179,17 @@ router.put('/users/:id', async (req, res) => {
     res.status(500).json({ message: 'Error updating user' });
   }
 });
+
+//Fetch all bills
+router.get('/all-bills', async (req, res) => {
+  try {
+    const bills = await Bill.find(); // Fetch all bills from the database
+    res.json(bills);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching bills', error });
+  }
+});
+
 
 // DELETE route to delete a user
 router.delete('/users/:id', async (req, res) => {

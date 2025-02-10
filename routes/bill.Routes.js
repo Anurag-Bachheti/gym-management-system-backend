@@ -1,7 +1,34 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
 const Bill = require('../models/Bill');
+const {getAllBill} = require('../controllers/billController');
+
+router.get('/', getAllBill, authenticateToken, async (req, res) => {
+  try {
+    const bills = await Bill.find();
+    res.json(bills);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching bills', error });
+  }
+});
+
+router.get('/bill-receipt', authenticateToken, async (req, res) => {
+  try {
+    const memberEmail = req.user.email;
+    const bill = await Bill.findOne({ email: memberEmail });
+
+    if (bill) {
+      res.json(bill);
+    } else {
+      res.status(404).json({ message: 'Bill not created' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching bill receipt', error });
+  }
+});
+
 
 router.post('/create', async (req, res) => {
   const { userId, membershipType, amountpaid, dueDate } = req.body;

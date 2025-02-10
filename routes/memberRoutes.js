@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Member = require('../models/Member');
-// const bcrypt = require("bcrypt");
+const authenticateToken = require('../middleware/authMiddleware');
 
 // Fetch all members
 router.get('/', async (req, res) => {
@@ -24,25 +24,19 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.get('/bill-receipt', authenticateToken, async (req, res) => {
+  try {
+    const memberEmail = req.user.email; // Assuming the token contains the user's email
+    const bill = await Bill.findOne({ email: memberEmail }); // Find the bill by member's email
 
-// router.post("/api/add-member", async (req, res) => {
-//   const { email, password } = req.body;
-
-//   try {
-//     // Hash password before storing
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     const newMember = new User({
-//       email,
-//       password: hashedPassword,
-//       role: "member",
-//     });
-
-//     await newMember.save();
-//     res.status(201).json({ message: "Member added successfully" });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error adding member" });
-//   }
-// });
+    if (bill) {
+      res.json(bill);
+    } else {
+      res.status(404).json({ message: 'Bill not created' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching bill receipt', error });
+  }
+});
 
 module.exports = router;
